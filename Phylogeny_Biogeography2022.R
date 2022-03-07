@@ -181,8 +181,4 @@ spar <- ecol.dat %>% filter(group=="Sparisoma") %>% select(genus_species,Habitat
 
 
 
-cleaned.tree <- drop.tip(phy=tree,
-                         tip=setdiff(tree$tip.label),
-                         colnames(AR))
-
 
