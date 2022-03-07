@@ -1,7 +1,7 @@
 # Biogeopgraphy Project 2022 
 # Author(s): Olivia H. Hawkins 
 # Date: 02/10/2022 
-# Goals: Extract data from FishBase 
+# Goals: Extract data from FishBase
 
 # Git-hub 
 browseURL("https://github.com/hawkinso/BiogeographyProject2022.git")
@@ -151,7 +151,22 @@ labrids <- c("Acantholabrus palloni", "Achoerodus gouldii", "Achoerodus viridis"
               "Thalassoma trilobatum", "Thalassoma virens", "Wetmorella albofasciata", "Wetmorella nigropinnata", "Wetmorella tanakai", 
               "Xenojulis margaritacea", "Xiphocheilus typus", "Xyrichtys blanchardi", "Xyrichtys incandescens", "Xyrichtys javanicus", 
               "Xyrichtys martinicensis", "Xyrichtys mundiceps", "Xyrichtys novacula", "Xyrichtys rajagopalani", "Xyrichtys sanctaehelenae", 
-              "Xyrichtys splendens", "Xyrichtys victori", "Xyrichtys wellingtoni")
+              "Xyrichtys splendens", "Xyrichtys victori", "Xyrichtys wellingtoni","Bolbometopon muricatum","Calotomus carolinus","Calotomus japonicus"
+             ,"Calotomus spinidens","Calotomus viridescens","Calotomus zonarchus","Cetoscarus bicolor","Cetoscarus ocellatus","Chlorurus atrilunula",
+             "Chlorurus bleekeri","Chlorurus bowersi","Chlorurus capistratoides","Chlorurus cyanescens","Chlorurus enneacanthus","Chlorurus frontalis",
+             "Chlorurus genazonatus","Chlorurus gibbus","Chlorurus japanensis","Chlorurus microrhinos","Chlorurus oedema","Chlorurus perspicillatus",
+             "Chlorurus rhakoura","Chlorurus sordidus","Chlorurus spilurus","Chlorurus strongylocephalus","Chlorurus troschelii","Cryptotomus roseus",
+             "Hipposcarus harid","Hipposcarus longiceps","Leptoscarus vaigiensis","Nicholsina collettei","Nicholsina denticulata","Nicholsina usta",
+             "Scarus altipinnis","Scarus arabicus","Scarus caudofasciatus","Scarus chameleon","Scarus chinensis","Scarus coelestinus","Scarus coeruleus",
+             "Scarus collana","Scarus compressus","Scarus dimidiatus","Scarus dubius","Scarus falcipinnis","Scarus ferrugineus","Scarus festivus",
+             "Scarus flavipectoralis","Scarus forsteni","Scarus frenatus","Scarus fuscocaudalis","Scarus fuscopurpureus","Scarus ghobban","Scarus globiceps",
+             "Scarus gracilis","Scarus guacamaia","Scarus hoefleri","Scarus hypselopterus","Scarus iseri","Scarus koputea","Scarus longipinnis",
+             "Scarus maculipinna","Scarus niger","Scarus obishime","Scarus oviceps","Scarus ovifrons","Scarus perrico","Scarus persicus",
+             "Scarus prasiognathos","Scarus psittacus","Scarus quoyi","Scarus rivulatus","Scarus rubroviolaceus","Scarus russelii","Scarus scaber",
+             "Scarus schlegeli","Scarus spinus","Scarus taeniopterus","Scarus tricolor","Scarus trispinosus","Scarus vetula","Scarus viridifucatus",
+             "Scarus xanthopleura","Scarus zelindae","Scarus zufar","Sparisoma amplum","Sparisoma atomarium","Sparisoma aurofrenatum","Sparisoma axillare",
+             "Sparisoma choati","Sparisoma chrysopterum","Sparisoma cretense","Sparisoma frondosum","Sparisoma griseorubrum","Sparisoma radians",
+             "Sparisoma rocha","Sparisoma rubripinne","Sparisoma strigatum","Sparisoma tuiupiranga","Sparisoma viride")
 
 # Get common names 
 common.names <- common_names(
@@ -223,11 +238,31 @@ Morphometrics <- Morphometrics %>%
   select(Species,SL,BD,AspectRatio)
 
 
-# PHYLOGENIES ---- 
+## Prune the results to the 143 labrids with available pectoral fin aspect ratio data. Use the pruned tree dataset 
+AR <- read.csv("aspectratio.csv")
 
-# Import phylogeny
-tree <- read.tree("Labridae_newick")
+# Note: only 129 species accounted for for 
+aspect.ratio <- pruned.tree.tib[(pruned.tree.tib$label %in% AR$genus_species),]
 
-# Work with tree 
-ggtree(tree,mrsd = TRUE)
+# Combine data to make an aspect ratio dataset (129 species)
+morpho <- Morphology[(Morphology$Species %in% AR$genus.species),]
+ecos <- Ecosystem[(Ecosystem$Species %in% AR$genus.species),] # will need this for mapping 
+ecol <- Ecology[(Ecology$Species %in% AR$genus.species),] # need to make a column with simple qualfiers 
+dist <- Distribution[(Distribution$Species %in% AR$genus.species),] # also may need for maps 
+
+# Combine data to make a full analysis dataset based off limitations from fish tree of life
+# We need to first make the pruned tree tib file have scientific names in the same format as fish base data 
+pruned.tree.tib$label <- sub("_", " ",pruned.tree.tib$label)
+
+morpho.all <- Morphology[(Morphology$Species %in% pruned.tree.tib$label),]
+ecos.all <- Ecosystem[(Ecosystem$Species %in% pruned.tree.tib$label),] # will need this for mapping 
+ecol.all <- Ecology[(Ecology$Species %in% pruned.tree.tib$label),] # need to make a column with simple qualfiers 
+dist.all <- Distribution[(Distribution$Species %in% pruned.tree.tib$label),] # also may need for maps 
+
+# Export ecology data frame to hand label habitat types and whether the habitat selection is generalist or specialist
+write.csv(ecol,"Ecology_ARpruned.csv")
+write.csv(ecol.all,"Ecology_pruned.csv")
+
+ecol <- read.csv("Ecology_ARpruned.csv")
+ecol.all <- read.csv("Ecology_pruned.csv")
 
