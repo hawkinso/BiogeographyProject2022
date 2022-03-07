@@ -21,6 +21,7 @@ library(ggstance)
 library(rstatix)
 library(picante)
 library(RColorBrewer)
+library(phytools)
 
 if (!require("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
@@ -138,23 +139,24 @@ AR <- read.csv("ARdata.csv")
 # We are interested in aspect ratio and habitat type
 # First we will look at aspect ratio
 AR <- data.frame(label=AR$genus_species,AR$AR..L.M.H)
-AR <- AR[1:340, ]
+#AR <- AR[1:340, ]
 tree.tib <- as_tibble(tree)
-tree.tib <- tree.tib[1:340, ]
+#tree.tib <- tree.tib[1:340, ]
 tree.AR <- full_join(tree.tib,AR, by='label')
 tree.AR <- as.phylo(tree.AR)
+
 
 ggtree(tree.AR,
        layout="circular")+
   geom_tiplab(size=1,color="black",face="italic")+
   guides(color = guide_legend(override.aes = list(size = 5))) +
   theme_tree2()+
-  geom_tippoint(aes(colour=AR.AR..L.M.H))+
+  geom_tippoint(aes(colour=as.factor(AR.AR..L.M.H))+
   theme(legend.position = "none",
-        axis.text.x = element_text(face="bold"))
+        axis.text.x = element_text(face="bold")))
 
 
-# Let's look at habitat type 
+# Let's look at habitat type ---- 
 ecol.dat <- ecol.dat %>%
   select(genus_species,Habitat.type,GenvsSpec)
 
@@ -164,5 +166,23 @@ groupInfo <- split(ecol.dat$genus_species,
 ecol.dat$group <- sub("_.*","",ecol.dat$genus_species)
 
 
+# filter dataset with specific genera 
+scarus <- ecol.dat %>% filter(group=="Scarus") %>% select(genus_species,Habitat.type)
+anampses <- ecol.dat %>% filter(group=="Anampses") %>% select(genus_species,Habitat.type)
+hali <- ecol.dat %>% filter(group=="Halichoeres") %>% select(genus_species,Habitat.type)
+bodianus <- ecol.dat %>% filter(group=="Bodianus") %>% select(genus_species,Habitat.type)
+cirr <- ecol.dat %>% filter(group=="Cirrhilabrus") %>% select(genus_species,Habitat.type)
+coris <- ecol.dat %>% filter(group=="Coris") %>% select(genus_species,Habitat.type)
+Psuedo <- ecol.dat %>% filter(group=="Pseudocheilinus") %>% select(genus_species,Habitat.type)
+thala <- ecol.dat %>% filter(group=="Thalassoma") %>% select(genus_species,Habitat.type)
+chlor <- ecol.dat %>% filter(group=="Chlorurus") %>% select(genus_species,Habitat.type)
+spar <- ecol.dat %>% filter(group=="Sparisoma") %>% select(genus_species,Habitat.type)
+
+
+
+
+cleaned.tree <- drop.tip(phy=tree,
+                         tip=setdiff(tree$tip.label),
+                         colnames(AR))
 
 
