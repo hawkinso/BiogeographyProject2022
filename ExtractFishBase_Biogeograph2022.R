@@ -266,3 +266,5 @@ write.csv(ecol.all,"Ecology_pruned.csv")
 ecol <- read.csv("Ecology_ARpruned.csv")
 ecol.all <- read.csv("Ecology_pruned.csv")
 
+# Export distribution 
+write.csv(Distribution,"Distribution.csv")
